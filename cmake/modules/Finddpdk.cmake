@@ -141,3 +141,11 @@ if(dpdk_FOUND)
 endif()
 
 unset(_dpdk_libs)
+
+# Seastar links against DPDK::dpdk, but this module provides dpdk::dpdk.
+# Add the uppercase name as an alias so the Seastar build works.
+if(TARGET dpdk::dpdk AND NOT TARGET DPDK::dpdk)
+  add_library(DPDK::dpdk INTERFACE IMPORTED)
+  set_target_properties(DPDK::dpdk PROPERTIES
+    INTERFACE_LINK_LIBRARIES dpdk::dpdk)
+endif()
