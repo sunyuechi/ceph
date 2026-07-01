@@ -7372,7 +7372,9 @@ int Client::fscrypt_dummy_encryption() {
     char keyid[FSCRYPT_KEY_IDENTIFIER_SIZE];
     int r = add_fscrypt_key(key, sizeof(key), keyid);
     if (r < 0) {
-      goto err;
+      // The key was not added, so keyid is not populated and there is
+      // nothing to remove.
+      return r;
     }
 
     // set dummy encryption policy
@@ -7398,7 +7400,8 @@ int Client::fscrypt_dummy_encryption() {
     memcpy(key_spec.u.identifier, keyid, FSCRYPT_KEY_IDENTIFIER_SIZE);
     arg.removal_status_flags = 0;
     arg.key_spec = key_spec;
-    r = remove_fscrypt_key(&arg);
+    // Preserve the original failure; don't mask it with the removal result.
+    remove_fscrypt_key(&arg);
     return r;
 }
 #endif
